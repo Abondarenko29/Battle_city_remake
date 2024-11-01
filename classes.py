@@ -124,3 +124,20 @@ class Wall(pg.sprite.Sprite):
                 object.rect.y -= object.speed
             elif self.rect.y <= object.rect.y:
                 object.rect.y += object.speed
+
+
+class Button:
+    def __init__(self, text, x, y, width, height,
+                 button_color, text_color):
+        self.rect = pg.Rect(x, y, width, height)
+        self.rect.x = x
+        self.rect.y = y
+        self.color = button_color
+        self.text = pg.font.Font(None, 50)
+        self.text = self.text.render(text, True, text_color)
+
+    def check(self, event, alghoritm):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            x, y = event.pos
+            if self.rect.collidepoint(x, y):
+                alghoritm()
