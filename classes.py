@@ -91,7 +91,7 @@ class Player(Sprite):
     def update(self):
         key = pg.key.get_pressed()
         if key[pg.K_LEFT]:
-            self.image = pg.transform.rotate(self.image, 3)
+            self.route("left")
         if key[pg.K_RIGHT]:
             self.route("right")
         if key[pg.K_UP]:
