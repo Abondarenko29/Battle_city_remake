@@ -60,7 +60,7 @@ from classes import PlayerController, ControlScreen, Screen, Player, Enemy, Wall
 
 pg.init()
 
-FPS = 60
+FPS = 30
 
 width, height = 800, 600
 background = (0, 0, 0)
@@ -68,9 +68,9 @@ title = "танчики"
 
 main_screen = Screen(width, height, title, background)
 
-player = Player(x=width // 2, y=height - 100, image="player_tank.png")
-enemy = Enemy(x=width // 2, y=100, image="enemy_tank.png")
-wall = Wall(x=300, y=250, image="wall.png")
+player = Player(x=width // 2, y=height - 100, image="files/player.png")
+enemy = Enemy(x=width // 2, y=100, image="files/enemy.png")
+wall = Wall(x=300, y=250, image="files/wall.png")
 
 main_screen.add_object(player)
 main_screen.add_object(enemy)
@@ -96,7 +96,7 @@ while running:
 
     wall.collide_rect(player)
 
-    pg.display.flip()
     clock.tick(FPS)
+    pg.display.update()
 
 pg.quit()
