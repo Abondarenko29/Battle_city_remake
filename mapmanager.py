@@ -17,7 +17,7 @@ def load_map(filename):
     for y, line in enumerate(lines):
         for x, char in enumerate(line.strip()):
             if char == 'W':
-                walls.add(Wall(x * 50 + offset_x, y * 50 + offset_y))
+                walls.add(Wall(x * 50 + offset_x, y * 50 + offset_y, "files/wall.png"))
             elif char == 'P':
                 player = Player(x * 50 + offset_x, y * 50 + offset_y, "files/Tank.png")
             elif char == 'E':
