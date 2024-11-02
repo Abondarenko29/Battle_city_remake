@@ -91,7 +91,7 @@ class Screen:  # Екран
     def update(self):
         for object in self.objects:
             object.blit(self.window)
-            pg.display.update()
+        pg.display.update()
         self.window.fill(self.color)
 
 
