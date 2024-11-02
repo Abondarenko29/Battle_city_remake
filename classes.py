@@ -2,9 +2,13 @@ import pygame as pg
 import logging
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+pg.init()
+message = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+for level in (logging.DEBUG, logging.INFO, logging.WARNING,
+              logging.ERROR, logging.CRITICAL):
+    logging.basicConfig(
+                        level=level,
+                        format=message)
 logger = logging.getLogger("Battle_city")
 
 
@@ -37,6 +41,10 @@ class Sprite(pg.sprite.Sprite):
         vector = vector.replace("right", "-1")
         vector = int(vector)
         self.image = pg.transform.rotate(self.image, vector * self.speed)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+    def blit(self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
 
 class ControlScreen:
@@ -82,7 +90,7 @@ class Screen:  # Екран
 
     def update(self):
         for object in self.objects:
-            self.window.blit(object.image, (object.rect.x, object.rect.y))
+            object.blit(self.window)
             pg.display.update()
         self.window.fill(self.color)
 
@@ -125,6 +133,9 @@ class Wall(pg.sprite.Sprite):
             elif self.rect.y <= object.rect.y:
                 object.rect.y += object.speed
 
+    def blit(self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
 
 class Button:
     def __init__(self, text, x, y, width, height,
@@ -135,9 +146,15 @@ class Button:
         self.color = button_color
         self.text = pg.font.Font(None, 50)
         self.text = self.text.render(text, True, text_color)
+        self.clicked = False
 
-    def check(self, event, alghoritm):
+    def check(self, event, algorithm, *args, **kwargs):
         if event.type == pg.MOUSEBUTTONDOWN:
             x, y = event.pos
             if self.rect.collidepoint(x, y):
-                alghoritm()
+                algorithm(*args, **kwargs)
+
+    def blit(self, screen):
+        pg.draw.rect(screen, self.color, self.rect)
+        screen.blit(self.text,
+                    (self.rect.x + 10, self.rect.center[1] - 15))
