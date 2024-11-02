@@ -101,8 +101,7 @@ class Player(Sprite):
 
 
 class Enemy(Sprite):
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 class Wall(pg.sprite.Sprite):
