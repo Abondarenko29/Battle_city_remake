@@ -187,6 +187,9 @@ class Explosion(pg.sprite.Sprite):
             else:
                 self.image = self.frames[self.frame_index]
 
+    def blit(self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
 
                                     # Функцонал меню #
 def main_menu(screen):
