@@ -97,7 +97,7 @@ class Bullet(pg.sprite.Sprite):
 
                                     # Класс стены #
 class Wall(pg.sprite.Sprite):
-    def __init__(self, x, y, image_path="files/wall.png"):
+    def __init__(self, x, y, image_path):
         super().__init__()
         self.image = pg.image.load(image_path)  
         self.image = pg.transform.scale(self.image, (50, 50))  
