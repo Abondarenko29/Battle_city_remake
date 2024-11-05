@@ -18,9 +18,10 @@ pg.display.set_caption("Battle City Remake")
 clock = pg.time.Clock()
 
 
-# Сам Цикл #
-def game_loop():
-    walls, player, enemy = load_map("map.txt")  # Загрузка карты #
+                            # Сам Цикл #
+def game_loop():  
+                                           
+    walls, player, enemy = load_map("map.txt") # Загрузка карты #
 
     bullets = pg.sprite.Group()
     explosions = pg.sprite.Group()

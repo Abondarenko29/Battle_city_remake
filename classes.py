@@ -10,6 +10,7 @@ HOVER_COLOR = (120, 100, 100)
 RESPAWN_DELAY = 3000 
 clock = pg.time.Clock()
 
+pg.init()
                                 # Меню #
 font = pg.font.Font(None, 50)
 def draw_text(text, font, color, surface, x, y):
@@ -99,6 +100,9 @@ class Bullet(pg.sprite.Sprite):
 class Wall(pg.sprite.Sprite):
     def init(self, x, y, image_path="files/wall.png"):
         super().init()
+
+    def __init__(self, x, y, image_path):
+        super().__init__()
         self.image = pg.image.load(image_path)  
         self.image = pg.transform.scale(self.image, (50, 50))  
         self.rect = self.image.get_rect(topleft=(x, y))
