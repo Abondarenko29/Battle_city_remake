@@ -26,8 +26,8 @@ def draw_button(text, x, y, w, h, surface, hover = False):
 
                              # Класс игрока #
 class Player(pg.sprite.Sprite):
-    def init(self, x, y, image_path, speed=3):
-        super().init()
+    def __init__(self, x, y, image_path, speed=3):
+        super().__init__()
         self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
         self.image = self.original_image
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -75,8 +75,8 @@ class Player(pg.sprite.Sprite):
 
                                 # Класс пули #
 class Bullet(pg.sprite.Sprite):
-    def init(self, x, y, direction, speed=5):
-        super().init()
+    def __init__(self, x, y, direction, speed=5):
+        super().__init__()
         self.image = pg.Surface((10, 10))
         self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect(center=(x, y))
@@ -99,18 +99,18 @@ class Bullet(pg.sprite.Sprite):
                                     # Класс стены #
 class Wall(pg.sprite.Sprite):
     def init(self, x, y, image_path="files/wall.png"):
-        super().init()
+        super().__init__()
 
     def __init__(self, x, y, image_path):
         super().__init__()
         self.image = pg.image.load(image_path)  
-        self.image = pg.transform.scale(self.image, (50, 50))  
+        self.image = pg.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
 # Класс врага #
 class Enemy(pg.sprite.Sprite):
-    def init(self, x, y, image_path, speed=1):
-        super().init()
+    def __init__(self, x, y, image_path, speed=1):
+        super().__init__()
         self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
         self.image = self.original_image
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -163,8 +163,8 @@ class Enemy(pg.sprite.Sprite):
         
                                             # Класс взрыва #
 class Explosion(pg.sprite.Sprite):
-    def init(self, x, y):
-        super().init()
+    def __init__(self, x, y):
+        super().__init__()
         self.frames = [
             pg.transform.scale(pg.image.load("files\explosion2.png"), (100, 100)),
             pg.transform.scale(pg.image.load("files\explosion3.png"), (100, 100)),
