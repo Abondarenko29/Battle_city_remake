@@ -38,10 +38,8 @@ def game_loop():
                         shoot_sound.play()
 
                 if event.key == pg.K_ESCAPE:
-                    if messagebox.askokcancel("Вихід з програми",
-                                            "Ви точно хочете завершити гру й вийти?"):
-                        running = False
-
+                    pause_menu(screen)
+                    
         player.update(walls)
         enemy.update(player, walls)
         bullets.update()

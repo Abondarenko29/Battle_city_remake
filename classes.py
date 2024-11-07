@@ -223,3 +223,39 @@ def main_menu(screen):
 
                 pg.display.flip()
                 clock.tick(60)
+                
+                                    # Функцонал Паузы #
+                
+def pause_menu(screen):
+    paused = True
+    while paused:
+        screen.fill(BACKGROUND_COLOR)
+        mx, my = pg.mouse.get_pos()
+        
+        # Define buttons
+        button_return = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50)
+        button_main_menu = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        button_exit = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50)
+
+        # Draw buttons
+        draw_button("Return", button_return.x, button_return.y, button_return.width, button_return.height, screen, button_return.collidepoint((mx, my)))
+        draw_button("Main Menu", button_main_menu.x, button_main_menu.y, button_main_menu.width, button_main_menu.height, screen, button_main_menu.collidepoint((mx, my)))
+        draw_button("Exit", button_exit.x, button_exit.y, button_exit.width, button_exit.height, screen, button_exit.collidepoint((mx, my)))
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if button_return.collidepoint((mx, my)):
+                    paused = False  # Return to game
+                elif button_main_menu.collidepoint((mx, my)):
+                    main_menu(screen)  # Go to main menu
+                    paused = False
+                    return  # Exit the pause menu loop and return to main menu
+                elif button_exit.collidepoint((mx, my)):
+                    pg.quit()
+                    sys.exit()  # Exit the game
+
+        pg.display.flip()
+        clock.tick(60)
