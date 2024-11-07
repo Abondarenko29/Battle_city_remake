@@ -70,20 +70,25 @@ class Player(pg.sprite.Sprite):
         current_time = pg.time.get_ticks()
         if current_time - self.last_shot_time >= self.shoot_delay:
             self.last_shot_time = current_time 
-            return Bullet(self.rect.centerx, self.rect.centery, self.direction)
+            return Bullet(self.rect.centerx, self.rect.centery, "files/bullet.png", self.direction)
         return None
 
 
                                 # Класс пули #
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, x, y, direction, speed=5):
+    def __init__(self, x, y, image_path, direction, speed=5):
         super().__init__()
-        self.image = pg.Surface((10, 10))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(center=(x, y))
+        self.original_image = pg.transform.scale(pg.image.load(image_path), (10, 10))
+        self.image = self.original_image
+        self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
         self.direction = direction
-
+        self.rotate(direction)
+        
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+    
     def update(self):
         if self.direction == 0:
             self.rect.y -= self.speed
@@ -99,16 +104,13 @@ class Bullet(pg.sprite.Sprite):
 
                                     # Класс стены #
 class Wall(pg.sprite.Sprite):
-    def init(self, x, y, image_path="files/wall.png"):
-        super().__init__()
-
     def __init__(self, x, y, image_path):
         super().__init__()
         self.image = pg.image.load(image_path)  
         self.image = pg.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
-# Класс врага #
+                                    # Класс врага #
 class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y, image_path, speed=1, vector="^"):
         super().__init__()
