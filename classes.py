@@ -7,7 +7,8 @@ BACKGROUND_COLOR = (30, 30, 30)
 FONT_COLOR = (255, 255, 255)
 BUTTON_COLOR = (70, 70, 70)
 HOVER_COLOR = (120, 100, 100)
-RESPAWN_DELAY = 3000 
+RESPAWN_DELAY = 3000
+VECTORS = ("^", ">", "v", "<")
 clock = pg.time.Clock()
 
 pg.init()
@@ -109,7 +110,7 @@ class Wall(pg.sprite.Sprite):
 
 # Класс врага #
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, x, y, image_path, speed=1):
+    def __init__(self, x, y, image_path, speed=1, vector="^"):
         super().__init__()
         self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
         self.image = self.original_image
@@ -118,6 +119,7 @@ class Enemy(pg.sprite.Sprite):
         self.alive = True
         self.respawn_timer = None
         self.spawn_pos = (x, y)
+        self.vector = vector
 
     def update(self, player, walls):
         if self.alive:

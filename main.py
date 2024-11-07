@@ -1,6 +1,7 @@
 import pygame as pg
 from classes import *
 from mapmanager import load_map
+from tkinter import messagebox
 
 
 pg.mixer.init()
@@ -37,6 +38,11 @@ def game_loop():
                     if bullet:
                         bullets.add(bullet)
                         shoot_sound.play()
+
+                if event.key == pg.K_ESCAPE:
+                    if messagebox.askokcancel("Вихід з програми",
+                                              "Ви точно завершити гру й вийти?"):
+                        running = False
 
         player.update(walls)
         enemy.update(player, walls)
