@@ -96,24 +96,30 @@ class ShootingTank:
     def shoot(self, bullets, direction, plus_x=0, plus_y=0):
         current_time = pg.time.get_ticks()
         if current_time - self.last_shot_time >= self.shoot_delay:
+
             self.last_shot_time = current_time
             bullet = Bullet(self.object.rect.centerx + plus_x,
                           self.object.rect.centery + plus_y,
-                          direction)
+                          "files/bullet.png", direction)
             pg.mixer.Sound("files/bullet_sound.mp3").play()
             bullets.add(bullet)
-        return None
+            self.last_shot_time = current_time
 
 
                                 # Класс пули #
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, x, y, direction, speed=5):
+    def __init__(self, x, y, image_path, direction, speed=5):
         super().__init__()
-        self.image = pg.Surface((10, 10))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect(center=(x, y))
+        self.original_image = pg.transform.scale(pg.image.load(image_path), (10, 10))
+        self.image = self.original_image
+        self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
         self.direction = direction
+        self.rotate(direction)
+
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
     def update(self):
         if self.direction == 0:
@@ -130,9 +136,6 @@ class Bullet(pg.sprite.Sprite):
 
                                     # Класс стены #
 class Wall(pg.sprite.Sprite):
-    def init(self, x, y, image_path="files/wall.png"):
-        super().__init__()
-
     def __init__(self, x, y, image_path):
         super().__init__()
         self.image = pg.image.load(image_path)
@@ -192,22 +195,22 @@ class Enemy(Tank):
         match self.direction:
             case 0:
                 conditional_1 = self.rect.y > player.rect.y
-                conditional_2 = self.rect.x // 5 == player.rect.x // 10
+                conditional_2 = self.rect.x // 10 == player.rect.x // 10
                 if conditional_1 and conditional_2:
                     self.shoot(bullets, plus_y=-50)
             case 90:
                 conditional_1 = self.rect.x > player.rect.x
-                conditional_2 = self.rect.y // 5 == player.rect.y // 10
+                conditional_2 = self.rect.y // 10 == player.rect.y // 10
                 if conditional_1 and conditional_2:
                     self.shoot(bullets, plus_x=-50)
             case -90:
                 conditional_1 = self.rect.x < player.rect.x
-                conditional_2 = self.rect.y // 5 == player.rect.y // 10
+                conditional_2 = self.rect.y // 10 == player.rect.y // 10
                 if conditional_1 and conditional_2:
                     self.shoot(bullets, plus_x=50)
             case 180:
                 conditional_1 = self.rect.y < player.rect.y
-                conditional_2 = self.rect.x // 5 == player.rect.x // 5
+                conditional_2 = self.rect.x // 10 == player.rect.x // 10
                 if conditional_1 and conditional_2:
                     self.shoot(bullets, plus_y=50)
 
@@ -269,3 +272,39 @@ def main_menu(screen):
 
                 pg.display.flip()
                 clock.tick(60)
+                
+                                    # Функцонал Паузы #
+                
+def pause_menu(screen):
+    paused = True
+    while paused:
+        screen.fill(BACKGROUND_COLOR)
+        mx, my = pg.mouse.get_pos()
+        
+        # Define buttons
+        button_return = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50)
+        button_main_menu = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        button_exit = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50)
+
+        # Draw buttons
+        draw_button("Return", button_return.x, button_return.y, button_return.width, button_return.height, screen, button_return.collidepoint((mx, my)))
+        draw_button("Main Menu", button_main_menu.x, button_main_menu.y, button_main_menu.width, button_main_menu.height, screen, button_main_menu.collidepoint((mx, my)))
+        draw_button("Exit", button_exit.x, button_exit.y, button_exit.width, button_exit.height, screen, button_exit.collidepoint((mx, my)))
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if button_return.collidepoint((mx, my)):
+                    paused = False  # Return to game
+                elif button_main_menu.collidepoint((mx, my)):
+                    main_menu(screen)  # Go to main menu
+                    paused = False
+                    return  # Exit the pause menu loop and return to main menu
+                elif button_exit.collidepoint((mx, my)):
+                    pg.quit()
+                    sys.exit()  # Exit the game
+
+        pg.display.flip()
+        clock.tick(60)
