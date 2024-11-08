@@ -8,7 +8,6 @@ FONT_COLOR = (255, 255, 255)
 BUTTON_COLOR = (70, 70, 70)
 HOVER_COLOR = (120, 100, 100)
 RESPAWN_DELAY = 3000
-VECTORS = ("^", ">", "v", "<")
 clock = pg.time.Clock()
 
 pg.init()
@@ -25,17 +24,34 @@ def draw_button(text, x, y, w, h, surface, hover = False):
     draw_text(text, font, FONT_COLOR, surface, x + w // 2, y + h // 2)
 
 
-                             # Класс игрока #
-class Player(pg.sprite.Sprite):
-    def __init__(self, x, y, image_path, speed=3):
-        super().__init__()
+class Tank(pg.sprite.Sprite):
+    def __init__(self, x, y, image_path, speed):
         self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
         self.image = self.original_image
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
+        self.alive = True
         self.direction = 0
-        self.shoot_delay = 500
-        self.last_shot_time = 0
+        self.controller = ShootingTank(self, 0, 2000)
+
+    def kill(self):
+        self.alive = False
+        self.image.set_alpha(0)
+        del self
+
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+    def shoot(self, bullets, plus_x=0, plus_y=0):
+        self.controller.shoot(bullets, self.direction,
+                              plus_x=plus_x, plus_y=plus_y)
+
+
+                             # Класс игрока #
+class Player(Tank):
+    def __init__(self, x, y, image_path, speed=3):
+        super().__init__(x, y, image_path, speed)
 
     def update(self, walls):
         keys = pg.key.get_pressed()
@@ -60,17 +76,32 @@ class Player(pg.sprite.Sprite):
 
         for wall in walls:
             if self.rect.colliderect(wall.rect):
-                self.rect.topleft = original_position 
+                self.rect.topleft = original_position
 
-    def rotate(self, angle):
-        self.image = pg.transform.rotate(self.original_image, angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
+    def shoot(self, bullets):
+        plus = {0: {"plus_y": -50},
+                90: {"plus_x": -50},
+                -90: {"plus_x": 50},
+                180: {"plus_y": 50}}
+        return self.controller.shoot(bullets, self.direction,
+                                     **plus[self.direction])
 
-    def shoot(self):
+
+class ShootingTank:
+    def __init__(self, object, last_shot_time, shot_delay):
+        self.object = object
+        self.last_shot_time = last_shot_time
+        self.shoot_delay = shot_delay
+
+    def shoot(self, bullets, direction, plus_x=0, plus_y=0):
         current_time = pg.time.get_ticks()
         if current_time - self.last_shot_time >= self.shoot_delay:
-            self.last_shot_time = current_time 
-            return Bullet(self.rect.centerx, self.rect.centery, self.direction)
+            self.last_shot_time = current_time
+            bullet = Bullet(self.object.rect.centerx + plus_x,
+                          self.object.rect.centery + plus_y,
+                          direction)
+            pg.mixer.Sound("files/bullet_sound.mp3").play()
+            bullets.add(bullet)
         return None
 
 
@@ -104,52 +135,47 @@ class Wall(pg.sprite.Sprite):
 
     def __init__(self, x, y, image_path):
         super().__init__()
-        self.image = pg.image.load(image_path)  
+        self.image = pg.image.load(image_path)
         self.image = pg.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
+
 # Класс врага #
-class Enemy(pg.sprite.Sprite):
-    def __init__(self, x, y, image_path, speed=1, vector="^"):
-        super().__init__()
-        self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
-        self.image = self.original_image
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.speed = speed
-        self.alive = True
+class Enemy(Tank):
+    def __init__(self, x, y, image_path, speed=1):
+        super().__init__(x, y, image_path, speed)
         self.respawn_timer = None
         self.spawn_pos = (x, y)
-        self.vector = vector
+        self.controller = ShootingTank(self, 0, 2000)
 
     def update(self, player, walls):
         if self.alive:
-            original_position = self.rect.topleft 
+            original_position = self.rect.topleft
             if abs(self.rect.x - player.rect.x) > abs(self.rect.y - player.rect.y):
                 if self.rect.x < player.rect.x:
                     self.rect.x += self.speed
                     self.rotate(-90)
+                    self.direction = -90
                 elif self.rect.x > player.rect.x:
                     self.rect.x -= self.speed
                     self.rotate(90)
+                    self.direction = 90
             else:
                 if self.rect.y < player.rect.y:
                     self.rect.y += self.speed
                     self.rotate(180)
+                    self.direction = 180
                 elif self.rect.y > player.rect.y:
                     self.rect.y -= self.speed
                     self.rotate(0)
+                    self.direction = 0
 
-            
             for wall in walls:
                 if self.rect.colliderect(wall.rect):
                     self.rect.topleft = original_position
         else:
             if self.respawn_timer and pg.time.get_ticks() - self.respawn_timer >= RESPAWN_DELAY:
                 self.respawn()
-
-    def rotate(self, angle):
-        self.image = pg.transform.rotate(self.original_image, angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
 
     def kill(self):
         self.alive = False
@@ -161,8 +187,30 @@ class Enemy(pg.sprite.Sprite):
         self.image.set_alpha(255)
         self.rect.topleft = self.spawn_pos
         self.respawn_timer = None
-        
-        
+
+    def ai(self, player, bullets):
+        match self.direction:
+            case 0:
+                conditional_1 = self.rect.y > player.rect.y
+                conditional_2 = self.rect.x // 5 == player.rect.x // 10
+                if conditional_1 and conditional_2:
+                    self.shoot(bullets, plus_y=-50)
+            case 90:
+                conditional_1 = self.rect.x > player.rect.x
+                conditional_2 = self.rect.y // 5 == player.rect.y // 10
+                if conditional_1 and conditional_2:
+                    self.shoot(bullets, plus_x=-50)
+            case -90:
+                conditional_1 = self.rect.x < player.rect.x
+                conditional_2 = self.rect.y // 5 == player.rect.y // 10
+                if conditional_1 and conditional_2:
+                    self.shoot(bullets, plus_x=50)
+            case 180:
+                conditional_1 = self.rect.y < player.rect.y
+                conditional_2 = self.rect.x // 5 == player.rect.x // 5
+                if conditional_1 and conditional_2:
+                    self.shoot(bullets, plus_y=50)
+
                                             # Класс взрыва #
 class Explosion(pg.sprite.Sprite):
     def __init__(self, x, y):
@@ -214,7 +262,7 @@ def main_menu(screen):
                 sys.exit()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if button_start.collidepoint((mx, my)):
-                    return  
+                    return
                 elif button_exit.collidepoint((mx, my)):
                     pg.quit()
                     sys.exit()

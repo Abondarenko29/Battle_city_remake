@@ -22,7 +22,7 @@ clock = pg.time.Clock()
                             # Сам Цикл #
 def game_loop():  
                                            
-    walls, player, enemy = load_map("map.txt") # Загрузка карты #
+    walls, player, enemy = load_map("map.txt")  # Загрузка карты #
 
     bullets = pg.sprite.Group()
     explosions = pg.sprite.Group()
@@ -34,10 +34,7 @@ def game_loop():
                 running = False
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
-                    bullet = player.shoot()
-                    if bullet:
-                        bullets.add(bullet)
-                        shoot_sound.play()
+                    bullet = player.shoot(bullets)
 
                 if event.key == pg.K_ESCAPE:
                     if messagebox.askokcancel("Вихід з програми",
@@ -48,7 +45,9 @@ def game_loop():
         enemy.update(player, walls)
         bullets.update()
         explosions.update()
+        enemy.ai(player, bullets)
 
+        pg.sprite.groupcollide(bullets, walls, True, False)
         if enemy.alive:
             for bullet in bullets:
                 if bullet.rect.colliderect(enemy.rect):
@@ -57,11 +56,21 @@ def game_loop():
                     explosions.add(explosion)
                     bullet.kill()
                     enemy.kill()
+        if player.alive:
+            for bullet in bullets:
+                if bullet.rect.colliderect(player.rect):
+                    explosion = Explosion(player.rect.centerx,
+                                          player.rect.centery)
+                    explosions.add(explosion)
+                    bullet.kill()
+                    player.kill()
+                    # Дописати екран поразки
 
         screen.fill(BACKGROUND_COLOR)
-        screen.blit(player.image, player.rect)
         if enemy.alive:
             screen.blit(enemy.image, enemy.rect)
+        if player.alive:
+            screen.blit(player.image, player.rect)
         walls.draw(screen)
         bullets.draw(screen)
         explosions.draw(screen)
