@@ -6,7 +6,7 @@ pg.mixer.init()
 pg.init()
 pg.font.init()
 
-# Звуки #
+# Звуки #  
 maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
