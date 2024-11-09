@@ -3,7 +3,7 @@ from classes import *
 def load_map(filename):
     walls = pg.sprite.Group()
     player = None
-    enemy = None
+    enemies = pg.sprite.Group()
 
     with open(filename, 'r') as f:
         lines = f.readlines()
@@ -22,5 +22,6 @@ def load_map(filename):
                 player = Player(x * 50 + offset_x, y * 50 + offset_y, "files/Tank.png")
             elif char == 'E':
                 enemy = Enemy(x * 50 + offset_x, y * 50 + offset_y, "files/Tank_enemy.png")
+                enemies.add(enemy)
 
-    return walls, player, enemy
+    return walls, player, enemies

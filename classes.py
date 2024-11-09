@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+from random import randint
 
 
 WIDTH, HEIGHT = 1980, 1080
@@ -8,7 +9,10 @@ FONT_COLOR = (255, 255, 255)
 BUTTON_COLOR = (70, 70, 70)
 HOVER_COLOR = (120, 100, 100)
 RESPAWN_DELAY = 3000
+BASE_COUNTER = 0
+COUNT_TO_WIN = 10
 clock = pg.time.Clock()
+all_enemies = pg.sprite.Group()
 
 pg.init()
                                 # Меню #
@@ -23,7 +27,7 @@ def draw_button(text, x, y, w, h, surface, hover = False):
     pg.draw.rect(surface, color, (x, y, w, h))
     draw_text(text, font, FONT_COLOR, surface, x + w // 2, y + h // 2)
 
-
+                        # Освной класс танков#
 class Tank(pg.sprite.Sprite):
     def __init__(self, x, y, image_path, speed):
         self.original_image = pg.transform.scale(pg.image.load(image_path), (45, 45))
@@ -51,6 +55,7 @@ class Tank(pg.sprite.Sprite):
                              # Класс игрока #
 class Player(Tank):
     def __init__(self, x, y, image_path, speed=3):
+        pg.sprite.Sprite.__init__(self)
         super().__init__(x, y, image_path, speed)
 
     def update(self, walls):
@@ -142,10 +147,10 @@ class Wall(pg.sprite.Sprite):
         self.image = pg.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
-
-# Класс врага #
+                                    # Класс врага #
 class Enemy(Tank):
     def __init__(self, x, y, image_path, speed=1):
+        pg.sprite.Sprite.__init__(self)
         super().__init__(x, y, image_path, speed)
         self.respawn_timer = None
         self.spawn_pos = (x, y)
@@ -179,7 +184,14 @@ class Enemy(Tank):
         else:
             if self.respawn_timer and pg.time.get_ticks() - self.respawn_timer >= RESPAWN_DELAY:
                 self.respawn()
-
+   
+    def spawn_enemies(all_enemies, enemy_count=5):
+        for i in range(enemy_count):
+            x = randint(100, WIDTH - 100)
+            y = randint(100, HEIGHT - 100)
+            enemy = Enemy(x, y, "files\Tank_enemy.png")
+            all_enemies.add(enemy)
+        
     def kill(self):
         self.alive = False
         self.image.set_alpha(0)
@@ -190,30 +202,19 @@ class Enemy(Tank):
         self.image.set_alpha(255)
         self.rect.topleft = self.spawn_pos
         self.respawn_timer = None
+        all_enemies.add(self)
 
     def ai(self, player, bullets):
-        match self.direction:
-            case 0:
-                conditional_1 = self.rect.y > player.rect.y
-                conditional_2 = self.rect.x // 10 == player.rect.x // 10
-                if conditional_1 and conditional_2:
-                    self.shoot(bullets, plus_y=-50)
-            case 90:
-                conditional_1 = self.rect.x > player.rect.x
-                conditional_2 = self.rect.y // 10 == player.rect.y // 10
-                if conditional_1 and conditional_2:
-                    self.shoot(bullets, plus_x=-50)
-            case -90:
-                conditional_1 = self.rect.x < player.rect.x
-                conditional_2 = self.rect.y // 10 == player.rect.y // 10
-                if conditional_1 and conditional_2:
-                    self.shoot(bullets, plus_x=50)
-            case 180:
-                conditional_1 = self.rect.y < player.rect.y
-                conditional_2 = self.rect.x // 10 == player.rect.x // 10
-                if conditional_1 and conditional_2:
-                    self.shoot(bullets, plus_y=50)
-
+        if self.alive:
+            if self.direction == 0 and self.rect.y < player.rect.y and self.rect.x // 10 == player.rect.x // 10:
+                self.shoot(bullets, plus_y=50)
+            elif self.direction == 90 and self.rect.x > player.rect.x and self.rect.y // 10 == player.rect.y // 10:
+                self.shoot(bullets, plus_x=-50)
+            elif self.direction == -90 and self.rect.x < player.rect.x and self.rect.y // 10 == player.rect.y // 10:
+                self.shoot(bullets, plus_x=50)
+            elif self.direction == 180 and self.rect.y > player.rect.y and self.rect.x // 10 == player.rect.x // 10:
+                self.shoot(bullets, plus_y=-50)
+                
                                             # Класс взрыва #
 class Explosion(pg.sprite.Sprite):
     def __init__(self, x, y):
@@ -270,23 +271,21 @@ def main_menu(screen):
                     pg.quit()
                     sys.exit()
 
-                pg.display.flip()
-                clock.tick(60)
+        pg.display.flip()
+        clock.tick(60)
                 
                                     # Функцонал Паузы #
-                
+          
 def pause_menu(screen):
     paused = True
     while paused:
         screen.fill(BACKGROUND_COLOR)
         mx, my = pg.mouse.get_pos()
         
-        # Define buttons
         button_return = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50)
         button_main_menu = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
         button_exit = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50)
 
-        # Draw buttons
         draw_button("Return", button_return.x, button_return.y, button_return.width, button_return.height, screen, button_return.collidepoint((mx, my)))
         draw_button("Main Menu", button_main_menu.x, button_main_menu.y, button_main_menu.width, button_main_menu.height, screen, button_main_menu.collidepoint((mx, my)))
         draw_button("Exit", button_exit.x, button_exit.y, button_exit.width, button_exit.height, screen, button_exit.collidepoint((mx, my)))
@@ -297,14 +296,25 @@ def pause_menu(screen):
                 sys.exit()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if button_return.collidepoint((mx, my)):
-                    paused = False  # Return to game
+                    paused = False 
                 elif button_main_menu.collidepoint((mx, my)):
-                    main_menu(screen)  # Go to main menu
+                    main_menu(screen) 
                     paused = False
-                    return  # Exit the pause menu loop and return to main menu
+                    return
                 elif button_exit.collidepoint((mx, my)):
                     pg.quit()
-                    sys.exit()  # Exit the game
+                    sys.exit()  
 
         pg.display.flip()
         clock.tick(60)
+        
+                                                # Смерть #
+                                                
+def game_over(screen):
+    screen.fill(BACKGROUND_COLOR)
+    draw_text("Game Over", font, FONT_COLOR, screen, WIDTH // 2, HEIGHT // 2)
+    pg.display.flip()
+    pg.time.wait(2000)
+    main_menu(screen)
+    
+                                                # Победа #
