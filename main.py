@@ -6,14 +6,14 @@ pg.mixer.init()
 pg.init()
 pg.font.init()
 
-# Звуки #  
+                            # Звуки #  
 maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
 shoot_sound = pg.mixer.Sound("files/bullet_sound.mp3")
 
-# Экран #
+                            # Экран #
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Battle City Remake")
 clock = pg.time.Clock()
@@ -21,14 +21,13 @@ clock = pg.time.Clock()
 
                             # Сам Цикл #
 def game_loop():  
-                                           
+    i = 0                                 
     walls, player, enemies = load_map("levels/level1.txt")  # Загрузка карты #
 
     bullets = pg.sprite.Group()
     explosions = pg.sprite.Group()
 
     running = True
-    i = 0
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -64,6 +63,8 @@ def game_loop():
                         if conditional and (i + 1) != len(maps):
                             i += 1
                             walls, player, enemy = load_map(maps[i])
+                        else:
+                            win(screen)
         if player.alive:
             for bullet in bullets:
                 if bullet.rect.colliderect(player.rect):
