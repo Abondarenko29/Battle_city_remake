@@ -6,14 +6,14 @@ pg.mixer.init()
 pg.init()
 pg.font.init()
 
-# Звуки #  
+                            # Звуки #  
 maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
 shoot_sound = pg.mixer.Sound("files/bullet_sound.mp3")
 
-# Экран #
+                            # Экран #
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Battle City Remake")
 clock = pg.time.Clock()
