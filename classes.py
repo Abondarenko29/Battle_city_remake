@@ -326,3 +326,31 @@ def win(screen):
     pg.time.wait(1000)
     pg.quit()
     sys.exit()
+
+def next_level(screen):
+    clicked = False
+    while not clicked:
+        screen.fill(BACKGROUND_COLOR)
+        mx, my = pg.mouse.get_pos()
+        
+        button_next = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 50, 200, 50)
+        button_exit = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 200, 50)
+
+        draw_button("Next level", button_next.x, button_next.y, button_next.width, button_next.height, screen, button_next.collidepoint((mx, my)))
+        draw_button("Exit", button_exit.x, button_exit.y, button_exit.width, button_exit.height, screen, button_exit.collidepoint((mx, my)))
+        draw_text("Ти пройшов рівень!", font, FONT_COLOR, screen, WIDTH // 2, HEIGHT // 2 - 300)
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if button_next.collidepoint((mx, my)):
+                    clicked = True
+                    return True
+                elif button_exit.collidepoint((mx, my)):
+                    pg.quit()
+                    sys.exit()
+
+        pg.display.flip()
+        clock.tick(60)
