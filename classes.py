@@ -317,6 +317,7 @@ def game_over(screen):
     pg.time.wait(2000)
     main_menu(screen)
     
+    
                                                 # Победа #
                                                 
 def win(screen):
