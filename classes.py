@@ -318,3 +318,11 @@ def game_over(screen):
     main_menu(screen)
     
                                                 # Победа #
+                                                
+def win(screen):
+    screen.fill(BACKGROUND_COLOR)
+    draw_text("Yesss you win!", font, FONT_COLOR, screen, WIDTH // 2, HEIGHT // 2)
+    pg.display.flip()
+    pg.time.wait(1000)
+    pg.quit()
+    sys.exit()
