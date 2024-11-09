@@ -6,8 +6,10 @@ pg.mixer.init()
 pg.init()
 pg.font.init()
 
-                            # Звуки #  
-maps = ("levels/level1.txt", "levels/level2.txt")
+maps = ("levels/level1.txt", "levels/level2.txt",
+        "levels/level3.txt", "levels/level4.txt",
+        "levels/level5.txt", "levels/level6.txt")
+# Звуки
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
