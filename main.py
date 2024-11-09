@@ -1,11 +1,12 @@
 import pygame as pg
 from classes import *
-from mapmanager import load_map
+from mapmanager import load_map, delete_map
 from tkinter import messagebox
 pg.mixer.init()
 pg.init()
 pg.font.init()
 # Звуки #
+maps = ("levels/level1.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
@@ -20,12 +21,13 @@ clock = pg.time.Clock()
                             # Сам Цикл #
 def game_loop():  
                                            
-    walls, player, enemy = load_map("map.txt")  # Загрузка карты #
+    walls, player, enemy = load_map("levels/level1.txt")  # Загрузка карты #
 
     bullets = pg.sprite.Group()
     explosions = pg.sprite.Group()
 
     running = True
+    i = 0
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -36,7 +38,7 @@ def game_loop():
 
                 if event.key == pg.K_ESCAPE:
                     pause_menu(screen)
-                    
+
         player.update(walls)
         enemy.update(player, walls)
         bullets.update()
@@ -52,6 +54,10 @@ def game_loop():
                     explosions.add(explosion)
                     bullet.kill()
                     enemy.kill()
+                    conditional = True
+                    if conditional:
+                        i += 1
+                        walls, player, enemy = load_map(maps[i])
         if player.alive:
             for bullet in bullets:
                 if bullet.rect.colliderect(player.rect):

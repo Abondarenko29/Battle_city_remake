@@ -1,5 +1,6 @@
 from classes import *
-                                     # Менеджер карты#  
+                                     # Менеджер карты#
+
 def load_map(filename):
     walls = pg.sprite.Group()
     player = None
