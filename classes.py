@@ -311,11 +311,27 @@ def pause_menu(screen):
                                                 # Смерть #
                                                 
 def game_over(screen):
-    screen.fill(BACKGROUND_COLOR)
-    draw_text("Game Over", font, FONT_COLOR, screen, WIDTH // 2, HEIGHT // 2)
-    pg.display.flip()
-    pg.time.wait(2000)
-    main_menu(screen)
+    running = True
+    while running:
+        screen.fill(BACKGROUND_COLOR)
+        mx, my = pg.mouse.get_pos()
+
+        draw_text("Wasted", font, FONT_COLOR, screen, WIDTH // 2, HEIGHT // 2 - 100)
+
+        # Кнопка "Start Again"
+        button_restart = pg.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        draw_button("Start Again", button_restart.x, button_restart.y, button_restart.width, button_restart.height, screen, button_restart.collidepoint((mx, my)))
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if button_restart.collidepoint((mx, my)):
+                    return 
+
+        pg.display.flip()
+        clock.tick(60)
     
                                                 # Победа #
                                                 
