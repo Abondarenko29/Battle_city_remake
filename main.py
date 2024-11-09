@@ -49,7 +49,6 @@ def game_loop():
             enemy.ai(player, bullets)
         for enemy in all_enemies:
             enemy.update(player, walls)
-            
         pg.sprite.groupcollide(bullets, walls, True, False)
         for enemy in enemies:
             if enemy.alive:
