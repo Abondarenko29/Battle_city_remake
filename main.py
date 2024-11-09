@@ -1,17 +1,18 @@
 import pygame as pg
 from classes import *
 from mapmanager import load_map
-from tkinter import messagebox
+
 pg.mixer.init()
 pg.init()
 pg.font.init()
-# Звуки #
+
+# Звуки #  
 maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
-
 shoot_sound = pg.mixer.Sound("files/bullet_sound.mp3")
+
 # Экран #
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Battle City Remake")
@@ -21,7 +22,7 @@ clock = pg.time.Clock()
                             # Сам Цикл #
 def game_loop():  
                                            
-    walls, player, enemy = load_map("levels/level1.txt")  # Загрузка карты #
+    walls, player, enemies = load_map("levels/level1.txt")  # Загрузка карты #
 
     bullets = pg.sprite.Group()
     explosions = pg.sprite.Group()
@@ -40,24 +41,29 @@ def game_loop():
                     pause_menu(screen)
 
         player.update(walls)
-        enemy.update(player, walls)
+        for enemy in enemies:
+            enemy.update(player, walls)
         bullets.update()
         explosions.update()
-        enemy.ai(player, bullets)
-
+        for enemy in enemies:
+            enemy.ai(player, bullets)
+        for enemy in all_enemies:
+            enemy.update(player, walls)
+            
         pg.sprite.groupcollide(bullets, walls, True, False)
-        if enemy.alive:
-            for bullet in bullets:
-                if bullet.rect.colliderect(enemy.rect):
-                    explosion = Explosion(enemy.rect.centerx,
-                                          enemy.rect.centery)
-                    explosions.add(explosion)
-                    bullet.kill()
-                    enemy.kill()
-                    conditional = True
-                    if conditional and (i + 1) != len(maps):
-                        i += 1
-                        walls, player, enemy = load_map(maps[i])
+        for enemy in enemies:
+            if enemy.alive:
+                for bullet in bullets:
+                    if bullet.rect.colliderect(enemy.rect):
+                        explosion = Explosion(enemy.rect.centerx,
+                                            enemy.rect.centery)
+                        explosions.add(explosion)
+                        bullet.kill()
+                        enemy.kill()
+                        conditional = True
+                        if conditional and (i + 1) != len(maps):
+                            i += 1
+                            walls, player, enemy = load_map(maps[i])
         if player.alive:
             for bullet in bullets:
                 if bullet.rect.colliderect(player.rect):
@@ -66,13 +72,16 @@ def game_loop():
                     explosions.add(explosion)
                     bullet.kill()
                     player.kill()
-                    # Дописати екран поразки
-
+                    game_over(screen)
+                    
         screen.fill(BACKGROUND_COLOR)
-        if enemy.alive:
-            screen.blit(enemy.image, enemy.rect)
         if player.alive:
             screen.blit(player.image, player.rect)
+        
+        for enemy in enemies:
+            if enemy.alive:
+                screen.blit(enemy.image, enemy.rect)
+            
         walls.draw(screen)
         bullets.draw(screen)
         explosions.draw(screen)
