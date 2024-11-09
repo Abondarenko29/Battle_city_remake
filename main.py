@@ -7,7 +7,7 @@ pg.init()
 pg.font.init()
 
 # Звуки #
-maps = ("levels/level1.txt")
+maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
@@ -19,8 +19,9 @@ pg.display.set_caption("Battle City Remake")
 clock = pg.time.Clock()
 
 
-# Сам Цикл #
-def game_loop(): 
+                            # Сам Цикл #
+def game_loop():  
+                                           
     walls, player, enemies = load_map("levels/level1.txt")  # Загрузка карты #
 
     bullets = pg.sprite.Group()
@@ -50,18 +51,17 @@ def game_loop():
             enemy.update(player, walls)
             
         pg.sprite.groupcollide(bullets, walls, True, False)
-        
         for enemy in enemies:
             if enemy.alive:
                 for bullet in bullets:
                     if bullet.rect.colliderect(enemy.rect):
                         explosion = Explosion(enemy.rect.centerx,
-                                              enemy.rect.centery)
+                                            enemy.rect.centery)
                         explosions.add(explosion)
                         bullet.kill()
                         enemy.kill()
                         conditional = True
-                        if conditional:
+                        if conditional and (i + 1) != len(maps):
                             i += 1
                             walls, player, enemy = load_map(maps[i])
         if player.alive:
