@@ -1,12 +1,12 @@
 import pygame as pg
 from classes import *
-from mapmanager import load_map, delete_map
+from mapmanager import load_map
 from tkinter import messagebox
 pg.mixer.init()
 pg.init()
 pg.font.init()
 # Звуки #
-maps = ("levels/level1.txt")
+maps = ("levels/level1.txt", "levels/level2.txt")
 background_music = pg.mixer.music.load("files/background_music.mp3")
 pg.mixer.music.set_volume(0.5)
 pg.mixer.music.play(-1)
@@ -55,7 +55,7 @@ def game_loop():
                     bullet.kill()
                     enemy.kill()
                     conditional = True
-                    if conditional:
+                    if conditional and (i + 1) != len(maps):
                         i += 1
                         walls, player, enemy = load_map(maps[i])
         if player.alive:
