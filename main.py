@@ -48,7 +48,6 @@ def game_loop():
             enemy.ai(player, bullets)
         for enemy in all_enemies:
             enemy.update(player, walls)
-            
         pg.sprite.groupcollide(bullets, walls, True, False)
         for enemy in enemies:
             if enemy.alive:
@@ -59,7 +58,7 @@ def game_loop():
                         explosions.add(explosion)
                         bullet.kill()
                         enemy.kill()
-                        conditional = True
+                        conditional = next_level(screen)
                         if conditional and (i + 1) != len(maps):
                             i += 1
                             walls, player, enemy = load_map(maps[i])
@@ -74,7 +73,7 @@ def game_loop():
                     bullet.kill()
                     player.kill()
                     game_over(screen)
-                    
+
         screen.fill(BACKGROUND_COLOR)
         if player.alive:
             screen.blit(player.image, player.rect)
